@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Local AI Study Buddy</title>
+
+<style>
+body {
+    background: #101827;
+    color: white;
+    font-family: Arial;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h1 {
+    color: #60a5fa;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    padding: 12px;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+button {
+    padding: 12px 20px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#answer {
+    background: #1e293b;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+    white-space: pre-wrap;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🤖 Local AI Study Buddy</h1>
+
+<p>Your offline AI-powered learning companion.</p>
+
+<h3>Upload your syllabus</h3>
+
+<input type="file" id="syllabus">
+
+<button onclick="uploadSyllabus()">
+Upload Syllabus
+</button>
+
+<h3>Ask your AI Buddy</h3>
+
+<textarea id="question"
+placeholder="Ask me anything..."></textarea>
+
+<br>
+
+<input id="topic" placeholder="Subject / Topic">
+
+<br>
+
+<button onclick="askAI()">
+Ask AI
+</button>
+
+<div id="answer">
+Your AI response will appear here.
+</div>
+
+<script>
+
+async function uploadSyllabus() {
+
+    const file = document.getElementById("syllabus").files[0];
+
+    if (!file) {
+        alert("Select a PDF or TXT file first");
+        return;
+    }
+
+    const form = new FormData();
+
+    form.append("file", file);
+
+    const response = await fetch("/api/syllabus", {
+        method: "POST",
+        body: form
+    });
+
+    const data = await response.json();
+
+    document.getElementById("answer").textContent =
+        data.message || data.error;
+}
+
+
+async function askAI() {
+
+    const message =
+        document.getElementById("question").value;
+
+    const topic =
+        document.getElementById("topic").value;
+
+    document.getElementById("answer").textContent =
+        "Thinking...";
+
+    const response = await fetch("/api/chat", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            message: message,
+            topic: topic
+        })
+
+    });
+
+    const data = await response.json();
+
+    document.getElementById("answer").textContent =
+        data.answer || data.error;
+}
+
+</script>
+
+</body>
+</html>
